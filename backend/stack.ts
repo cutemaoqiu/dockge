@@ -17,6 +17,7 @@ import {
     UNKNOWN
 } from "../common/util-common";
 import { InteractiveTerminal, Terminal } from "./terminal";
+import { updateChecker } from "./update-checker";
 import childProcessAsync from "promisify-child-process";
 import { Settings } from "./settings";
 
@@ -79,6 +80,7 @@ export class Stack {
     }
 
     toSimpleJSON(endpoint : string) : object {
+        const update = updateChecker.get(this.name);
         return {
             name: this.name,
             status: this._status,
@@ -86,6 +88,8 @@ export class Stack {
             isManagedByDockge: this.isManagedByDockge,
             composeFileName: this._composeFileName,
             endpoint,
+            updateStatus: update?.status ?? "unknown",
+            updateServices: update?.services ?? [],
         };
     }
 

@@ -27,6 +27,7 @@ import expressStaticGzip from "express-static-gzip";
 import path from "path";
 import { TerminalSocketHandler } from "./agent-socket-handlers/terminal-socket-handler";
 import { Stack } from "./stack";
+import { updateChecker } from "./update-checker";
 import { Cron } from "croner";
 import gracefulShutdown from "http-graceful-shutdown";
 import User from "./models/user";
@@ -404,6 +405,10 @@ export class DockgeServer {
             });
 
             checkVersion.startInterval();
+
+            // 镜像更新检查：启动后跑一次，之后每 6 小时一次
+            setTimeout(() => this.refreshUpdates(), 15 * 1000);
+            setInterval(() => this.refreshUpdates(), 6 * 60 * 60 * 1000);
         });
 
         gracefulShutdown(this.httpServer, {
@@ -612,6 +617,29 @@ export class DockgeServer {
                     ok: true,
                     stackList: Object.fromEntries(map),
                 });
+            }
+        }
+    }
+
+    /**
+     * Check all managed stacks for newer images, then push the refreshed list to the UI
+     */
+    async refreshUpdates() {
+        try {
+            const stackList = await Stack.getStackList(this, true);
+            const targets = new Map<string, string>();
+
+            for (const [ stackName, stack ] of stackList) {
+                if (stack.isManagedByDockge) {
+                    targets.set(stackName, stack.composeYAML);
+                }
+            }
+
+            await updateChecker.refreshAll(targets);
+            await this.sendStackList(true);
+        } catch (e) {
+            if (e instanceof Error) {
+                log.warn("update-check", e.message);
             }
         }
     }
