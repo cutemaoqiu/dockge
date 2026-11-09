@@ -3,6 +3,7 @@
         <Uptime :stack="stack" :fixed-width="true" class="me-2" />
         <div class="title">
             <span>{{ stackName }}</span>
+            <span v-if="stack.updateStatus === 'update'" class="update-badge" :title="updateTitle">{{ $t("updateAvailable") }}</span>
         </div>
     </router-link>
 </template>
@@ -69,7 +70,10 @@ export default {
         },
         stackName() {
             return this.stack.name;
-        }
+        },
+        updateTitle() {
+            return (this.stack.updateServices || []).join(", ");
+        },
     },
     watch: {
         isSelectMode() {
@@ -148,6 +152,16 @@ export default {
     }
     .title {
         margin-top: -4px;
+    }
+    .update-badge {
+        margin-left: 6px;
+        padding: 1px 6px;
+        border-radius: 8px;
+        font-size: 11px;
+        line-height: 16px;
+        color: #fff;
+        background-color: #e67e22;
+        white-space: nowrap;
     }
     .endpoint {
         font-size: 12px;

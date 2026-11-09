@@ -18,6 +18,7 @@
     "stopStack": "Stop",
     "restartStack": "Restart",
     "updateStack": "Update",
+    "updateAvailable": "Update available",
     "startStack": "Start",
     "downStack": "Stop & Inactive",
     "editStack": "Edit",

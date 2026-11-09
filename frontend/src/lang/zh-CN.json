@@ -18,6 +18,7 @@
     "stopStack": "停止",
     "restartStack": "重启",
     "updateStack": "更新",
+    "updateAvailable": "有更新",
     "startStack": "启动",
     "editStack": "编辑",
     "discardStack": "放弃",

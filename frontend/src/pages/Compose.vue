@@ -39,6 +39,7 @@
                     <button v-if="!isEditMode" class="btn btn-normal" :disabled="processing" @click="updateStack">
                         <font-awesome-icon icon="cloud-arrow-down" class="me-1" />
                         {{ $t("updateStack") }}
+                        <span v-if="stack.updateStatus === 'update'" class="update-badge" :title="updateTitle">{{ $t("updateAvailable") }}</span>
                     </button>
 
                     <button v-if="!isEditMode && active" class="btn btn-normal" :disabled="processing" @click="stopStack">
@@ -349,6 +350,10 @@ export default {
     computed: {
         endpointDisplay() {
             return this.$root.endpointDisplayFunction(this.endpoint);
+        },
+
+        updateTitle() {
+            return (this.stack.updateServices || []).join(", ");
         },
 
         urls() {
@@ -700,6 +705,10 @@ export default {
             this.$root.emitAgent(this.endpoint, "updateStack", this.stack.name, (res) => {
                 this.processing = false;
                 this.$root.toastRes(res);
+                if (res.ok) {
+                    // 更新完成后重新拉一次，把「有更新」角标消掉
+                    this.loadStack();
+                }
             });
         },
 
@@ -861,5 +870,16 @@ export default {
 .agent-name {
     font-size: 13px;
     color: $dark-font-color3;
+}
+
+.update-badge {
+    margin-left: 6px;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 16px;
+    color: #fff;
+    background-color: #e67e22;
+    white-space: nowrap;
 }
 </style>
