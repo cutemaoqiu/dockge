@@ -169,6 +169,9 @@ class UpdateChecker {
             task = this.check(composeYAML)
                 .then((state) => {
                     this.states.set(stackName, state);
+                    if (state.status === "update") {
+                        log.info("update-check", `${stackName}: 有新版本 (${state.services.join(", ")})`);
+                    }
                     return state;
                 })
                 .finally(() => this.tasks.delete(stackName));
