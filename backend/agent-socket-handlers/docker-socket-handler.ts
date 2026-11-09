@@ -2,6 +2,7 @@ import { AgentSocketHandler } from "../agent-socket-handler";
 import { DockgeServer } from "../dockge-server";
 import { callbackError, callbackResult, checkLogin, DockgeSocket, ValidationError } from "../util-server";
 import { Stack } from "../stack";
+import { updateChecker } from "../update-checker";
 import { AgentSocket } from "../../common/agent-socket";
 
 export class DockerSocketHandler extends AgentSocketHandler {
@@ -187,6 +188,8 @@ export class DockerSocketHandler extends AgentSocketHandler {
 
                 const stack = await Stack.getStack(server, stackName);
                 await stack.update(socket);
+                // 拉取后本地 digest 已变，重查一次让列表上的「可更新」角标消失
+                await updateChecker.refresh(stack.name, stack.composeYAML);
                 callbackResult({
                     ok: true,
                     msg: "Updated",
